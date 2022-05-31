@@ -20,4 +20,8 @@
 
 测试基本通过，待完善
 
-参考 侯捷老师《STL源码剖析》
+参考 
+
+侯捷老师《STL源码剖析》
+
+[Alinshans/MyTinySTL: Achieve a tiny STL in C++11 (github.com)](https://github.com/Alinshans/MyTinySTL)
