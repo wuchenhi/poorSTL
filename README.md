@@ -1,6 +1,6 @@
 ### poorSTL
 
-    这是c的。。、
+    这是STL的简单实现，主要包括以下内容：
 
     1 allocater 、 iterator、algorithm
 
@@ -19,3 +19,5 @@
     8 algorithms
 
 测试基本通过，待完善
+
+参考 侯捷老师《STL源码剖析》
