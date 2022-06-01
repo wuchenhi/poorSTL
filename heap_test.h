@@ -57,6 +57,27 @@ void heap_test()
         std::cout << *it << ' ';
     }
     std::cout << std::endl;
+
+    std::cout << "[-----------------------自定义比较器 less 后数组--- ------- ------------]"<< std::endl;
+    std::cout << "[-----------------------push_heap 后数组--- ------- ------------]"<< std::endl;
+    poorstl::vector<int> v10;
+     for (int n=0; n<11; ++n){
+        v10.push_back(n);
+    }
+    make_heap(v10.begin(), v10.end());
+    v10.push_back(11);
+    push_heap(v10.begin(), v10.end(), poorstl::less<int>() );
+    for (auto it = v10.begin(); it != v10.end(); ++it) {
+        std::cout << *it << ' ';
+    }
+    std::cout << std::endl;
+    std::cout << "[-----------------------pop_heap 后数组--- ------- ------------]"<< std::endl;
+    pop_heap(v10.begin(), v10.end());
+    v10.pop_back();
+    for (auto it = v10.begin(); it != v10.end(); ++it) {
+        std::cout << *it << ' ';
+    }
+    std::cout << std::endl;
 }
 
 

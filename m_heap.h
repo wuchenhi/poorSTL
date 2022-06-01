@@ -4,13 +4,13 @@
 #include "m_iterator.h"
 #include "m_allocator.h"
 #include "m_algo.h"
-
+#include "functional.h"
 
 namespace poorstl
 {
 /*****************************************************************************************/
-// push_heap 函数接受两个迭代器，表示一个 heap 的首尾，并且新元素已经插入到底部容器的最尾端
 
+// push_heap 函数接受两个迭代器，表示一个 heap 的首尾，并且新元素已经插入到底部容器的最尾端
 //实际完成插入的函数
 template <class RandomIter, class Distance, class T>
 void push_heap_aux(RandomIter first, Distance holeIndex, Distance topIndex, T value)
@@ -37,6 +37,33 @@ template <class RandomIter>
 void push_heap(RandomIter first, RandomIter last)
 {   // 新元素应该已置于底部容器的最尾端
     poorstl::push_heap_distance(first, last, distance_type(first));
+}
+
+// 可自定义比较器版本
+template <class RandomIter, class Distance, class T, class Compare>
+void push_heap_aux(RandomIter first, Distance holeIndex, Distance topIndex, T value, Compare com)
+{
+    auto parent = (holeIndex - 1) / 2; //父节点
+    while (holeIndex > topIndex && com(*(first + parent), value))  //*(first + parent) < value  可见是max-heap
+    {
+        *(first + holeIndex) = *(first + parent);  //洞值为父节点值
+        holeIndex = parent;                        //percolate up 上溯
+        parent = (holeIndex - 1) / 2;              //新的父节点
+    }
+    *(first + holeIndex) = value;                  //完成插入
+}
+
+template <class RandomIter, class Distance, class Compare>
+void push_heap_distance(RandomIter first, RandomIter last, Distance*, Compare com)
+{
+    //(last - first) - 1) 容器最尾端的洞序  0为topIndex  *(last - 1)为value
+    poorstl::push_heap_aux(first, static_cast<Distance>((last - first) - 1), static_cast<Distance>(0), *(last - 1), com);
+}
+
+template <class RandomIter, class Compare>
+void push_heap(RandomIter first, RandomIter last, Compare com)
+{   // 新元素应该已置于底部容器的最尾端
+    poorstl::push_heap_distance(first, last, distance_type(first), com);
 }
 
 /*****************************************************************************************/
@@ -81,6 +108,47 @@ void pop_heap(RandomIter first, RandomIter last)
 {
     poorstl::pop_heap_aux(first, last - 1, last - 1, *(last - 1), distance_type(first));
 }
+
+//自定义比较器版本
+template <class RandomIter, class T, class Distance, class Compare>
+void adjust_heap(RandomIter first, Distance holeIndex, Distance len, T value, Compare com)
+{
+    // 先percolate down(下溯)
+    auto topIndex = holeIndex;
+    auto rChild = 2 * holeIndex + 2;
+    while (rChild < len)
+    {
+        //比较左右字节点
+        if (com(*(first + rChild), *(first + rChild - 1)))
+            --rChild;
+        *(first + holeIndex) = *(first + rChild);
+        holeIndex = rChild;
+        rChild = 2 * (rChild + 1);
+    }
+    if (rChild == len)
+    {  // 只有左子节点，没有右子节点
+        *(first + holeIndex) = *(first + (rChild - 1));
+        holeIndex = rChild - 1;
+    }
+    // 尚未满足次序特性，再执行一次percolate up（上溯）
+    poorstl::push_heap_aux(first, holeIndex, topIndex, value, com); 
+}
+
+template <class RandomIter, class T, class Distance,  class Compare>
+void pop_heap_aux(RandomIter first, RandomIter last, RandomIter result, T value,
+                  Distance*, Compare com)
+{
+    //首值调至尾节点（所求值），调用底层容器的pop_back取出，然后调整[first, last - 1)使之重新成为一个 max-heap
+    *result = *first;
+    poorstl::adjust_heap(first, static_cast<Distance>(0), last - first, value, com); //0为树根， value为调整值（原尾值）
+}
+
+template <class RandomIter, class Compare>
+void pop_heap(RandomIter first, RandomIter last, Compare com)
+{
+    poorstl::pop_heap_aux(first, last - 1, last - 1, *(last - 1), distance_type(first), com);
+}
+
 
 /*****************************************************************************************/
 // sort_heap 函数接受两个迭代器，表示 heap 容器的首尾，不断执行 pop_heap 操作，直到首尾最多相差1

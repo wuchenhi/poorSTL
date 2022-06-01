@@ -5,13 +5,15 @@
 #include "list_test.h"
 #include "deque_test.h"
 #include "heap_test.h"
+#include "priority_queue_test.h"
 
 int main()
 {
-	poorstl::string_test();
-	poorstl::vector_test();
-	poorstl::list_test();
-    poorstl::deque_test();
-    poorstl::heap_test();
+	//poorstl::string_test();
+	//poorstl::vector_test();
+	//poorstl::list_test();
+    //poorstl::deque_test();
+    //poorstl::heap_test();
+    poorstl::priority_queue_test();
 	return 0;
 }
