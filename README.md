@@ -12,15 +12,15 @@
 
     4 list的实现
 
-    5 deque的实现
+    5 deque的实现 front操作有问题 TODO
 
-    6 queue TODO
+    6 queue 的实现
 
-    7 stack TODO
+    7 stack 的实现
 
-    8 heap
+    8 heap 的实现
 
-    9 priority_queue
+    9 priority_queue 的实现
 
 TODO
 
