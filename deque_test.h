@@ -6,8 +6,6 @@
 
 // deque test : 测试 deque 的接口
 
-#include "m_deque.h"
-
 namespace poorstl
 {
 

@@ -1,7 +1,7 @@
 ﻿#ifndef m_UNINITIALIZED_H_
 #define m_UNINITIALIZED_H_
 
-// 这个头文件用于对未初始化空间构造元素
+// 作用：在未初始化空间构造元素
 
 #include "m_algo.h"
 #include "m_allocator.h"

@@ -12,15 +12,17 @@
 
     5 deque的实现
 
-    6 heap TODO
+    6 heap
 
-    7 RB tree
+    7 priority_queue
 
-    8 algorithms
+    8 RB tree TODO
+
+    9 algorithms
 
 测试基本通过，待完善
 
-参考 
+参考
 
 侯捷老师《STL源码剖析》
 
