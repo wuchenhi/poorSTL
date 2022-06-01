@@ -26,7 +26,7 @@ namespace poorstl
         priority_queue() : con() {}
         explicit priority_queue(const Compare& c) : con(), com(c) {} 
 
-        ~priority_queue() {}
+        ~priority_queue() = default;
 
         template <class InputIterator>
         priority_queue(InputIterator first, InputIterator last, const Compare& c)
