@@ -221,10 +221,6 @@ public:
 
     deque(size_type n, const value_type& value) { fill_init(n, value); }
 
-    deque(const deque& rhs){
-        copy_init(rhs.begin(), rhs.end(), poorstl::forward_iterator_tag());
-    }
-
     deque(deque&& rhs) noexcept
         :begin_of_deuqe(poorstl::move(rhs.begin_of_deuqe)),
         end_of_deuqe(poorstl::move(rhs.end_of_deuqe)),
@@ -234,7 +230,7 @@ public:
         rhs.map_ = nullptr;
         rhs.map_size = 0;
     }
-
+    /*
     //析构函数
     ~deque()
     {
@@ -247,6 +243,7 @@ public:
             //map_ = nullptr;
         }
     }
+    */
 
 public:
     // 迭代器相关操作
@@ -290,22 +287,38 @@ public:
 
     // 头尾push函数
     void     push_front(const value_type& value){
-    if (begin_of_deuqe.cur != begin_of_deuqe.first) {
+    if (begin_of_deuqe.cur != begin_of_deuqe.first) {  //第一缓冲区有备用空间
         data_allocator::construct(begin_of_deuqe.cur - 1, value);
         --begin_of_deuqe.cur;
     }
-    else {
-        require_capacity(1, true);
+    else {           //第一缓冲区无备用空间  代码没问题 为什么报错
+        create_buffer(begin_of_deuqe.node-2, begin_of_deuqe.node-1);
+        //poorstl::_construct(&**(begin_of_deuqe.node-1), 10);
+        --begin_of_deuqe;
+        //begin_of_deuqe.cur = begin_of_deuqe.last - 1;
+        data_allocator::construct(begin_of_deuqe.cur, value);
+
+        //*(begin_of_deuqe.node - 1) = create_node();  //配置一个新节点
+        //require_capacity(1, true);
+        /*
         try
         {
+            //begin_of_deuqe.set_node(begin_of_deuqe - 1);
             --begin_of_deuqe;
+            begin_of_deuqe.cur = begin_of_deuqe.last - 1;
             data_allocator::construct(begin_of_deuqe.cur, value);
         }
         catch (...)
         {
             ++begin_of_deuqe;
+           // begin_of_deuqe.set_node(begin_of_deuqe + 1);
+            begin_of_deuqe.cur = begin_of_deuqe.first;
+            //--begin_of_deuqe;
+            //deallocate_node(begin_of_deuqe - 1);
+            destroy_buffer(begin_of_deuqe.node-1, begin_of_deuqe.node-1);
             throw;
         }
+        */
     }
     }
 
@@ -317,9 +330,9 @@ public:
         }
         else  //TODO
         {
-            require_capacity(1, false);
-            data_allocator::construct(end_of_deuqe.cur, value);
-            ++end_of_deuqe;
+            //require_capacity(1, false);
+            //data_allocator::construct(end_of_deuqe.cur, value);
+            //++end_of_deuqe;
         }
     }
 
@@ -351,26 +364,6 @@ public:
             destroy_buffer(end_of_deuqe.node + 1, end_of_deuqe.node + 1);
         }
     }
-
-    /*TODO
-    // 重载=运算符 
-    deque& operator=(const deque& rhs);
-    deque& operator=(deque&& rhs);
-
-    void      resize(size_type new_size) { resize(new_size, value_type()); }
-    void      resize(size_type new_size, const value_type& value);
-    void      shrink_to_fit() noexcept;
-
-    // insert函数
-    iterator insert(iterator position, const value_type& value);
-    iterator insert(iterator position, value_type&& value);
-    void     insert(iterator position, size_type n, const value_type& value);
-  
-    // erase
-    iterator erase(iterator position);
-    iterator erase(iterator first, iterator last);
-
-    */
 
     //清空 函数
     void     clear(){
@@ -407,7 +400,14 @@ public:
 private:
     // 私有辅助函数
 
-    // create node / destroy node
+    // create node / destroy node 配置一个新节点
+    map_pointer create_node(){
+        map_pointer tmp = nullptr;
+        tmp = map_allocator::allocate(1);
+        *(tmp) = nullptr;
+    }
+
+    //创建map
     map_pointer create_map(size_type size){
         map_pointer tmp = nullptr;
         tmp = map_allocator::allocate(size);
@@ -419,16 +419,14 @@ private:
     //创建缓冲区
     void        create_buffer(map_pointer nstart, map_pointer nfinish) {
         map_pointer cur;
-        for (cur = nstart; cur <= nfinish; ++cur)
-        {
+        for (cur = nstart; cur <= nfinish; ++cur) {
             *cur = data_allocator::allocate(buffer_size);
         }
     }
 
     //清空缓冲区
     void        destroy_buffer(map_pointer nstart, map_pointer nfinish){
-        for (map_pointer cur = nstart; cur <= nfinish; ++cur)
-        {
+        for (map_pointer cur = nstart; cur <= nfinish; ++cur) {
             data_allocator::deallocate(*cur, buffer_size);
             *cur = nullptr;
         }     
@@ -437,10 +435,6 @@ private:
     // initialize
     void        map_node_init(size_type nelem);
     void        fill_init(size_type n, const value_type& value);
-    template <class IIter>
-    void        copy_init(IIter, IIter, input_iterator_tag);
-    template <class FIter>
-    void        copy_init(FIter, FIter, forward_iterator_tag);
 
     // reallocate
     void        require_capacity(size_type n, bool front){
@@ -497,7 +491,7 @@ void deque<T>::map_node_init(size_type nElem)
     map_pointer nfinish = nstart + nNode - 1;
     try
     {
-        //配置缓冲区  所以缓冲区加起来就算deque的可用空间
+        //配置缓冲区  所有缓冲区加起来就算deque的可用空间
         create_buffer(nstart, nfinish);
     }
     catch (...)
@@ -540,52 +534,52 @@ void deque<T>::fill_init(size_type n, const value_type& value)
 template <class T>
 void deque<T>::reallocate_map_at_front(size_type need_buffer)
 {
-  const size_type new_map_size = poorstl::max(map_size << 1,
+    const size_type new_map_size = poorstl::max(map_size << 1,
                                             map_size + need_buffer + DEQUE_map_node_init_SIZE);
-  map_pointer new_map = create_map(new_map_size);
-  const size_type old_buffer = end_of_deuqe.node - begin_of_deuqe.node + 1;
-  const size_type new_buffer = old_buffer + need_buffer;
+    map_pointer new_map = create_map(new_map_size);
+    const size_type old_buffer = end_of_deuqe.node - begin_of_deuqe.node + 1;
+    const size_type new_buffer = old_buffer + need_buffer;
 
-  // 另新的 map 中的指针指向原来的 buffer，并开辟新的 buffer
-  auto begin = new_map + (new_map_size - new_buffer) / 2;
-  auto mid = begin + need_buffer;
-  auto end = mid + old_buffer;
-  create_buffer(begin, mid - 1);
-  for (auto begin1 = mid, begin2 = begin_of_deuqe.node; begin1 != end; ++begin1, ++begin2)
-    *begin1 = *begin2;
+    // 另新的 map 中的指针指向原来的 buffer，并开辟新的 buffer
+    auto begin = new_map + (new_map_size - new_buffer) / 2;
+    auto mid = begin + need_buffer;
+    auto end = mid + old_buffer;
+    create_buffer(begin, mid - 1);
+    for (auto begin1 = mid, begin2 = begin_of_deuqe.node; begin1 != end; ++begin1, ++begin2)
+        *begin1 = *begin2;
 
-  // 更新数据
-  map_allocator::deallocate(map_, map_size);
-  map_ = new_map;
-  map_size = new_map_size;
-  begin_of_deuqe = iterator(*mid + (begin_of_deuqe.cur - begin_of_deuqe.first), mid);
-  end_of_deuqe = iterator(*(end - 1) + (end_of_deuqe.cur - end_of_deuqe.first), end - 1);
+    // 更新数据
+    map_allocator::deallocate(map_, map_size);
+    map_ = new_map;
+    map_size = new_map_size;
+    begin_of_deuqe = iterator(*mid + (begin_of_deuqe.cur - begin_of_deuqe.first), mid);
+    end_of_deuqe = iterator(*(end - 1) + (end_of_deuqe.cur - end_of_deuqe.first), end - 1);
 }
 
 // reallocate_map_at_back 函数
 template <class T>
 void deque<T>::reallocate_map_at_back(size_type need_buffer)
 {
-  const size_type new_map_size = poorstl::max(map_size << 1,
+    const size_type new_map_size = poorstl::max(map_size << 1,
                                             map_size + need_buffer + DEQUE_map_node_init_SIZE);
-  map_pointer new_map = create_map(new_map_size);
-  const size_type old_buffer = end_of_deuqe.node - begin_of_deuqe.node + 1;
-  const size_type new_buffer = old_buffer + need_buffer;
+    map_pointer new_map = create_map(new_map_size);
+    const size_type old_buffer = end_of_deuqe.node - begin_of_deuqe.node + 1;
+    const size_type new_buffer = old_buffer + need_buffer;
 
-  // 另新的 map 中的指针指向原来的 buffer，并开辟新的 buffer
-  auto begin = new_map + ((new_map_size - new_buffer) / 2);
-  auto mid = begin + old_buffer;
-  auto end = mid + need_buffer;
-  for (auto begin1 = begin, begin2 = begin_of_deuqe.node; begin1 != mid; ++begin1, ++begin2)
-    *begin1 = *begin2;
-  create_buffer(mid, end - 1);
+    // 另新的 map 中的指针指向原来的 buffer，并开辟新的 buffer
+    auto begin = new_map + ((new_map_size - new_buffer) / 2);
+    auto mid = begin + old_buffer;
+    auto end = mid + need_buffer;
+    for (auto begin1 = begin, begin2 = begin_of_deuqe.node; begin1 != mid; ++begin1, ++begin2)
+        *begin1 = *begin2;
+    create_buffer(mid, end - 1);
 
-  // 更新数据
-  map_allocator::deallocate(map_, map_size);
-  map_ = new_map;
-  map_size = new_map_size;
-  begin_of_deuqe = iterator(*begin + (begin_of_deuqe.cur - begin_of_deuqe.first), begin);
-  end_of_deuqe = iterator(*(mid - 1) + (end_of_deuqe.cur - end_of_deuqe.first), mid - 1);
+    // 更新数据
+    map_allocator::deallocate(map_, map_size);
+    map_ = new_map;
+    map_size = new_map_size;
+    begin_of_deuqe = iterator(*begin + (begin_of_deuqe.cur - begin_of_deuqe.first), begin);
+    end_of_deuqe = iterator(*(mid - 1) + (end_of_deuqe.cur - end_of_deuqe.first), mid - 1);
 }
 
 /*****************************************************************************************/

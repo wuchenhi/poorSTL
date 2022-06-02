@@ -30,7 +30,10 @@ void deque_test()
     d2.push_back(2);
     int back2 = d2.back();
     int s12 = d2.size();
-    //d1.push_front(10);
+    d1.pop_front();
+    std::cout << "d2的大小: "<< d2.size() << std::endl;
+    d1.push_front(10);
+
     int f2 = d2.front();
     std::cout << "d2的大小: "<< s12 << std::endl;
     std::cout << "d2的尾元素: "<< back2 << std::endl;

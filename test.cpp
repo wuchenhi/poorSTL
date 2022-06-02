@@ -11,13 +11,13 @@
 
 int main()
 {
-	poorstl::string_test();
-	poorstl::vector_test();
-	poorstl::list_test();
+	//poorstl::string_test();
+	//poorstl::vector_test();
+	//poorstl::list_test();
     poorstl::deque_test();
-    poorstl::heap_test();
-    poorstl::priority_queue_test();
-    poorstl::queue_test();
-    poorstl::stack_test();
+    //poorstl::heap_test();
+    //poorstl::priority_queue_test();
+    //poorstl::queue_test();
+    //poorstl::stack_test();
 	return 0;
 }
