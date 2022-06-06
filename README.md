@@ -8,29 +8,29 @@
 
     *1 allocater 、 iterator、algorithm
 
-    2 string的实现
+    *2 string的实现
 
-    3 vector的实现
+    *3 vector的实现
 
-    4 list的实现
+    *4 list的实现
 
-    5 deque的实现
+    *5 deque的实现
 
-    6 queue 的实现
+    *6 queue 的实现
 
-    7 stack 的实现
+    *7 stack 的实现
 
-    8 heap 的实现
+    *8 heap 的实现
 
-    9 priority_queue 的实现
+    *9 priority_queue 的实现
 
 TODO
 
-    1 hashtable
+    *1 hashtable
 
-    2 unordered_set unordered_map
+    *2 unordered_set unordered_map
 
-    3 RB tree
+    *3 RB tree
 
 测试通过，deque的front操作有问题，待完善
 
