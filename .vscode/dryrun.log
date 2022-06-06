@@ -1,5 +1,0 @@
-make --dry-run --always-make --keep-going --print-directory
-make: Entering directory '/home/wuyi/cpp_code/poorSTL'
-g++ test.cpp -g -std=c++11 -fno-elide-constructors -o test 
-make: Leaving directory '/home/wuyi/cpp_code/poorSTL'
- 
