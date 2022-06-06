@@ -6,7 +6,7 @@
 
     已经实现的主要包括以下内容：
 
-    1 allocater 、 iterator、algorithm
+    *1 allocater 、 iterator、algorithm
 
     2 string的实现
 
