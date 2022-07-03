@@ -62,7 +62,7 @@ namespace poorstl
             try {
                 //pop_heap(con.begin(), con.end());
                 pop_heap(con.begin(), con.end(), com);
-                 con.pop_back();
+                con.pop_back();
             }
             catch(...){
                 con.clear();
